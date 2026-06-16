@@ -44,7 +44,11 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <View style={styles.fill}>
         <Animated.View style={[StyleSheet.absoluteFill, { opacity: backdrop }]}>
-          <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: theme.overlay }]} onPress={onClose} />
+          <Pressable
+            testID="bottom-sheet-backdrop"
+            style={[StyleSheet.absoluteFill, { backgroundColor: theme.overlay }]}
+            onPress={onClose}
+          />
         </Animated.View>
         <Animated.View
           style={[

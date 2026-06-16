@@ -71,8 +71,25 @@ for iOS, `a` for Android).
 4. Tap **+** in the input bar to attach an image from the camera, photo library,
    or files. Send a message and watch the response stream in.
 
+## Testing
+
+Unit tests cover the utilities, AI transport/provider logic, state contexts, and
+UI components, using [`jest-expo`](https://docs.expo.dev/develop/unit-testing/)
+and [React Native Testing Library](https://callstack.github.io/react-native-testing-library/).
+
+```bash
+npm test            # run the suite once
+npm run test:watch  # watch mode
+npm test -- --coverage
+```
+
+Tests live next to the code they cover in `__tests__/` folders. Native modules
+(secure store, async storage, image/document pickers, router, icons) are mocked
+in `jest.setup.js`, so tests run fast in Node without a device.
+
 ## Scripts
 
 - `npm run start` — start the dev server
 - `npm run ios` / `npm run android` — start on a simulator/device
+- `npm test` — run unit tests (`npm run test:watch` for watch mode)
 - `npx tsc --noEmit` — type-check
