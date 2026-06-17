@@ -1,7 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import { useMemo, useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import {
+  cloneElement,
+  isValidElement,
+  useMemo,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { Pressable, StyleSheet, View, type TextStyle } from 'react-native';
 import CodeHighlighter from 'react-native-code-highlighter';
 import { Renderer, useMarkdown, type RendererInterface } from 'react-native-marked';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -60,10 +67,42 @@ export function CodeBlock({ code, language }: { code: string; language?: string 
   );
 }
 
-/** react-native-marked renderer that swaps fenced code blocks for {@link CodeBlock}. */
+/** react-native-marked renderer that swaps fenced code blocks for {@link CodeBlock}
+ * and makes the rendered text selectable (long-press to copy). Links are left
+ * un-overridden so taps still open them. */
 class MarkdownRenderer extends Renderer implements RendererInterface {
+  private selectable(node: ReactNode): ReactNode {
+    return isValidElement(node)
+      ? cloneElement(node as ReactElement<{ selectable?: boolean }>, { selectable: true })
+      : node;
+  }
+
   code(text: string, language?: string): ReactNode {
     return <CodeBlock key={`code-${hashKey(text)}`} code={text} language={language} />;
+  }
+
+  text(text: string | ReactNode[], styles?: TextStyle): ReactNode {
+    return this.selectable(super.text(text, styles));
+  }
+
+  strong(children: string | ReactNode[], styles?: TextStyle): ReactNode {
+    return this.selectable(super.strong(children, styles));
+  }
+
+  em(children: string | ReactNode[], styles?: TextStyle): ReactNode {
+    return this.selectable(super.em(children, styles));
+  }
+
+  del(children: string | ReactNode[], styles?: TextStyle): ReactNode {
+    return this.selectable(super.del(children, styles));
+  }
+
+  codespan(text: string, styles?: TextStyle): ReactNode {
+    return this.selectable(super.codespan(text, styles));
+  }
+
+  heading(text: string | ReactNode[], styles?: TextStyle): ReactNode {
+    return this.selectable(super.heading(text, styles));
   }
 }
 

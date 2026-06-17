@@ -75,7 +75,7 @@ export function ChatBubble({ message }: { message: UIMessage }) {
 
         {text.length > 0 ? (
           isUser ? (
-            <ThemedText type="default" style={{ color: theme.bubbleUserText }}>
+            <ThemedText type="default" selectable style={{ color: theme.bubbleUserText }}>
               {text}
             </ThemedText>
           ) : (

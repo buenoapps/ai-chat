@@ -31,7 +31,7 @@ export function ReasoningBlock({ text, defaultOpen = false }: { text: string; de
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={theme.textSecondary} />
       </Pressable>
       {open ? (
-        <ThemedText type="small" themeColor="textSecondary" style={styles.reasoningText}>
+        <ThemedText type="small" themeColor="textSecondary" selectable style={styles.reasoningText}>
           {text}
         </ThemedText>
       ) : null}
@@ -84,7 +84,9 @@ function Codeish({ label, value }: { label: string; value: string }) {
         {label}
       </ThemedText>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <ThemedText style={[styles.mono, { color: theme.text }]}>{value}</ThemedText>
+        <ThemedText selectable style={[styles.mono, { color: theme.text }]}>
+          {value}
+        </ThemedText>
       </ScrollView>
     </View>
   );
