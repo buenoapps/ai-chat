@@ -12,7 +12,7 @@ import { createPerplexity } from '@ai-sdk/perplexity';
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
 import { fetch as expoFetch } from 'expo/fetch';
-import type { LanguageModel } from 'ai';
+import type { ImageModel, LanguageModel } from 'ai';
 
 import type { ProviderType } from '@/lib/types';
 
@@ -42,21 +42,42 @@ const FACTORIES = {
   cerebras: createCerebras,
 } satisfies Record<ProviderType, unknown>;
 
-type ModelFactory = (opts: {
+export type ProviderConnection = {
+  apiKey: string;
+  baseUrl?: string;
+  headers?: Record<string, string>;
+};
+
+/** A provider instance: callable for language models, with an optional image model factory. */
+type ProviderInstance = ((modelId: string) => LanguageModel) & {
+  image?: (modelId: string) => ImageModel;
+};
+
+type ProviderFactory = (opts: {
   apiKey: string;
   fetch: typeof globalThis.fetch;
   baseURL?: string;
   headers?: Record<string, string>;
-}) => (modelId: string) => LanguageModel;
+}) => ProviderInstance;
 
 /**
- * Build a configured language model for the given provider family, model id and
- * API key. The provider client is created on demand so keys never need to be
- * held in module state. An optional `baseUrl` overrides the provider's default
- * endpoint (for proxies, self-hosted/compatible gateways, or regional hosts);
- * optional `headers` are sent on every request (org routing, beta flags, proxy
- * auth, …). When omitted, the provider's own defaults are used.
+ * Create a configured provider instance for the given family. The client is
+ * created on demand so keys never need to be held in module state. An optional
+ * `baseUrl` overrides the provider's default endpoint (proxies, self-hosted /
+ * compatible gateways, regional hosts); optional `headers` are sent on every
+ * request (org routing, beta flags, proxy auth, …).
  */
+export function createProvider(type: ProviderType, conn: ProviderConnection): ProviderInstance {
+  const create = FACTORIES[type] as ProviderFactory;
+  return create({
+    apiKey: conn.apiKey,
+    fetch: streamingFetch,
+    baseURL: conn.baseUrl || undefined,
+    headers: conn.headers && Object.keys(conn.headers).length > 0 ? conn.headers : undefined,
+  });
+}
+
+/** Build a configured language model for the given provider family and model id. */
 export function resolveModel(
   type: ProviderType,
   modelId: string,
@@ -64,11 +85,5 @@ export function resolveModel(
   baseUrl?: string,
   headers?: Record<string, string>,
 ): LanguageModel {
-  const create = FACTORIES[type] as ModelFactory;
-  return create({
-    apiKey,
-    fetch: streamingFetch,
-    baseURL: baseUrl || undefined,
-    headers: headers && Object.keys(headers).length > 0 ? headers : undefined,
-  })(modelId);
+  return createProvider(type, { apiKey, baseUrl, headers })(modelId);
 }

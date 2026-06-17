@@ -1,6 +1,6 @@
 import { useChat } from '@ai-sdk/react';
 import { Ionicons } from '@expo/vector-icons';
-import type { FileUIPart } from 'ai';
+import type { FileUIPart, UIMessage } from 'ai';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -26,8 +26,14 @@ import { Spacing } from '@/constants/theme';
 import { useChats } from '@/context/chats-context';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
+import {
+  defaultImageModelFor,
+  generateChatImage,
+  providerSupportsImageGeneration,
+} from '@/lib/ai/images';
 import { MODELS, modelSupportsVision } from '@/lib/ai/models';
 import { LocalChatTransport, type ActiveModel } from '@/lib/ai/transport';
+import { generateId } from '@/lib/id';
 
 export default function ChatScreen() {
   const { id, providerId } = useLocalSearchParams<{ id: string; providerId?: string }>();
@@ -69,6 +75,9 @@ function Conversation({ chatId }: { chatId: string }) {
   const [attachments, setAttachments] = useState<FileUIPart[]>([]);
   const [attachVisible, setAttachVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [imageMode, setImageMode] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
 
   // Resolve the model + key for the current selection, kept in a ref so the
@@ -84,7 +93,7 @@ function Conversation({ chatId }: { chatId: string }) {
 
   const transport = useMemo(() => new LocalChatTransport(() => activeModelRef.current), []);
 
-  const { messages, sendMessage, status, error, stop } = useChat({
+  const { messages, sendMessage, setMessages: setChatMessages, status, error, stop } = useChat({
     id: chatId,
     transport,
     messages: initialMessages,
@@ -110,6 +119,9 @@ function Conversation({ chatId }: { chatId: string }) {
     : 'Select model';
   const canAttachImages = selectedProvider
     ? modelSupportsVision(selectedProvider.type, selectedProvider.model)
+    : false;
+  const supportsImageGen = selectedProvider
+    ? providerSupportsImageGeneration(selectedProvider.type)
     : false;
 
   useLayoutEffect(() => {
@@ -162,7 +174,68 @@ function Conversation({ chatId }: { chatId: string }) {
     setAttachVisible(true);
   }
 
+  function toggleImageMode() {
+    if (!selectedProvider) {
+      setPickerVisible(true);
+      return;
+    }
+    if (!supportsImageGen) {
+      Alert.alert(
+        'Image generation unavailable',
+        `${selectedProvider.name} can't generate images. Try an OpenAI, xAI, Fireworks, Together.ai or DeepInfra provider.`,
+      );
+      return;
+    }
+    setImageError(null);
+    setImageMode((on) => !on);
+  }
+
+  async function handleGenerateImage() {
+    const prompt = input.trim();
+    if (!prompt || generating) return;
+    const p = selectedProvider;
+    const apiKey = p ? getKey(p.id) : undefined;
+    const modelId = p ? defaultImageModelFor(p.type) : undefined;
+    if (!p || !apiKey || !modelId) {
+      setPickerVisible(true);
+      return;
+    }
+
+    // Append the prompt as a user message immediately.
+    const userMessage = {
+      id: generateId(),
+      role: 'user',
+      parts: [{ type: 'text', text: prompt }],
+    } as UIMessage;
+    setChatMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setImageError(null);
+    setGenerating(true);
+    try {
+      const { url, mediaType } = await generateChatImage(
+        p.type,
+        modelId,
+        { apiKey, baseUrl: p.baseUrl, headers: p.headers },
+        prompt,
+      );
+      const assistantMessage = {
+        id: generateId(),
+        role: 'assistant',
+        parts: [{ type: 'file', mediaType, url, filename: 'generated.png' }],
+      } as UIMessage;
+      setChatMessages((prev) => [...prev, assistantMessage]);
+    } catch (e) {
+      setImageError(e instanceof Error ? e.message : 'Image generation failed.');
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   function handleSend() {
+    if (imageMode) {
+      handleGenerateImage();
+      return;
+    }
     const text = input.trim();
     if (!text && attachments.length === 0) return;
     if (!activeModelRef.current) {
@@ -174,8 +247,9 @@ function Conversation({ chatId }: { chatId: string }) {
     setAttachments([]);
   }
 
-  const isBusy = status === 'submitted' || status === 'streaming';
-  const canSend = (input.trim().length > 0 || attachments.length > 0) && !isBusy;
+  const isBusy = status === 'submitted' || status === 'streaming' || generating;
+  const canSend = input.trim().length > 0 || (!imageMode && attachments.length > 0);
+  const sendEnabled = canSend && !isBusy;
 
   return (
     <ThemedView style={styles.container}>
@@ -200,18 +274,18 @@ function Conversation({ chatId }: { chatId: string }) {
           ) : (
             messages.map((m) => <ChatBubble key={m.id} message={m} />)
           )}
-          {status === 'submitted' ? (
+          {status === 'submitted' || generating ? (
             <View style={styles.typing}>
               <ActivityIndicator color={theme.textSecondary} />
             </View>
           ) : null}
         </ScrollView>
 
-        {error ? (
+        {error || imageError ? (
           <View style={[styles.errorBar, { backgroundColor: theme.backgroundElement }]}>
             <Ionicons name="alert-circle-outline" size={16} color={theme.danger} />
             <ThemedText type="small" style={{ color: theme.danger, flex: 1 }} numberOfLines={3}>
-              {error.message}
+              {error?.message ?? imageError}
             </ThemedText>
           </View>
         ) : null}
@@ -244,40 +318,58 @@ function Conversation({ chatId }: { chatId: string }) {
           ]}
         >
           <Pressable
-            onPress={openAttachments}
+            onPress={toggleImageMode}
             style={styles.iconButton}
-            accessibilityLabel="Add attachment"
-            accessibilityState={{ disabled: !canAttachImages }}
+            accessibilityLabel="Generate image"
+            accessibilityState={{ selected: imageMode }}
           >
             <Ionicons
-              name="add-circle-outline"
-              size={28}
-              color={canAttachImages ? theme.tint : theme.textSecondary}
+              name={imageMode ? 'color-wand' : 'color-wand-outline'}
+              size={26}
+              color={imageMode ? theme.tint : theme.textSecondary}
             />
           </Pressable>
+          {!imageMode ? (
+            <Pressable
+              onPress={openAttachments}
+              style={styles.iconButton}
+              accessibilityLabel="Add attachment"
+              accessibilityState={{ disabled: !canAttachImages }}
+            >
+              <Ionicons
+                name="add-circle-outline"
+                size={28}
+                color={canAttachImages ? theme.tint : theme.textSecondary}
+              />
+            </Pressable>
+          ) : null}
           <TextInput
             style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
             value={input}
             onChangeText={setInput}
-            placeholder="Message"
+            placeholder={imageMode ? 'Describe an image to generate…' : 'Message'}
             placeholderTextColor={theme.textSecondary}
             multiline
           />
-          {isBusy ? (
+          {generating ? (
+            <View style={styles.iconButton}>
+              <ActivityIndicator color={theme.tint} />
+            </View>
+          ) : isBusy ? (
             <Pressable onPress={stop} style={styles.iconButton} accessibilityLabel="Stop">
               <Ionicons name="stop-circle" size={32} color={theme.danger} />
             </Pressable>
           ) : (
             <Pressable
               onPress={handleSend}
-              disabled={!canSend}
+              disabled={!sendEnabled}
               style={styles.iconButton}
-              accessibilityLabel="Send"
+              accessibilityLabel={imageMode ? 'Generate' : 'Send'}
             >
               <Ionicons
-                name="arrow-up-circle"
-                size={32}
-                color={canSend ? theme.tint : theme.textSecondary}
+                name={imageMode ? 'sparkles' : 'arrow-up-circle'}
+                size={imageMode ? 28 : 32}
+                color={sendEnabled ? theme.tint : theme.textSecondary}
               />
             </Pressable>
           )}

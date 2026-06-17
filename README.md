@@ -36,6 +36,8 @@ left out because they don't fit the single-key BYOK flow.
   tool-call cards, and non-image file attachments. User messages stay literal.
 - **Image attachments** via Camera, Photo Library, or Files — sent to
   vision-capable models as multimodal input.
+- **Image generation** — toggle the wand in the chat input to turn a prompt into
+  an image (OpenAI, xAI, Fireworks, Together.ai, DeepInfra), rendered inline.
 - **Light & dark mode**, following the system appearance.
 - **Settings**: manage providers/models, share the app, rate the app, and view
   the current version/build number.

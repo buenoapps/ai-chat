@@ -41,6 +41,12 @@ Targets iOS and Android.
     `modelSupports{Vision,Thinking,Tools}()` + `findModel()` drive the
     `CapabilityBadges` shown in the provider form, model picker, and
     saved-providers list (and vision gates image attachments in the chat).
+  - **Image generation:** `ai.experimental_generateImage` via `images.ts`
+    (`createProvider(...).image(modelId)`). The chat input's wand toggles image
+    mode; `handleGenerateImage` appends the prompt + the resulting image (a
+    `file` part) with `setMessages`, bypassing the text transport.
+    `IMAGE_MODELS` lists supported providers (openai/xai/fireworks/togetherai/
+    deepinfra).
 - **State:** React contexts in `src/context/` — `ProvidersProvider` (loads keys
   into memory so the transport can read them synchronously) and `ChatsProvider`.
 - **Storage:** `src/lib/storage.ts`. Chats + provider metadata in AsyncStorage;
