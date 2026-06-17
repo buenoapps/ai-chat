@@ -11,10 +11,10 @@
       "icon": "./assets/expo.icon",
       "buildNumber": "1",
       "supportsTablet": true,
-      "bundleIdentifier": "com.aichat.app"
+      "bundleIdentifier": "com.buenoapps.aichat"
     },
     "android": {
-      "package": "com.aichat.app",
+      "package": "com.buenoapps.aichat",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
