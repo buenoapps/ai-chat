@@ -5,10 +5,10 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
-import { MODELS, PROVIDER_LABELS, modelSupportsVision } from '@/lib/ai/models';
+import { MODELS, PROVIDER_LABELS, findModel } from '@/lib/ai/models';
 import { BottomSheet } from './bottom-sheet';
+import { CapabilityBadges } from './capability-badges';
 import { ThemedText } from './themed-text';
-import { VisionBadge } from './vision-badge';
 
 type ModelPickerSheetProps = {
   visible: boolean;
@@ -72,7 +72,7 @@ export function ModelPickerSheet({ visible, onClose, selectedId, onSelect }: Mod
                 <View style={styles.rowText}>
                   <View style={styles.rowTitle}>
                     <ThemedText type="default">{p.name}</ThemedText>
-                    {modelSupportsVision(p.type, p.model) ? <VisionBadge /> : null}
+                    <CapabilityBadges model={findModel(p.type, p.model)} />
                   </View>
                   <ThemedText type="small" themeColor="textSecondary">
                     {PROVIDER_LABELS[p.type]} · {modelLabel(p.type, p.model)}

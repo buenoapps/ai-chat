@@ -10,9 +10,9 @@ import {
   View,
 } from 'react-native';
 
+import { CapabilityBadges } from '@/components/capability-badges';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { VisionBadge } from '@/components/vision-badge';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
@@ -171,7 +171,7 @@ export default function ProviderFormScreen() {
                   <ThemedText type="default" style={styles.flex}>
                     {m.label}
                   </ThemedText>
-                  {m.vision ? <VisionBadge /> : null}
+                  <CapabilityBadges model={m} />
                 </View>
                 <ThemedText type="small" themeColor="textSecondary">
                   {m.id}

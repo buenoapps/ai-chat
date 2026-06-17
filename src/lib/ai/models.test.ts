@@ -3,6 +3,9 @@ import {
   PROVIDER_LABELS,
   PROVIDER_TYPES,
   defaultModelFor,
+  findModel,
+  modelSupportsThinking,
+  modelSupportsTools,
   modelSupportsVision,
 } from './models';
 
@@ -61,6 +64,40 @@ describe('models catalog', () => {
 
     it('returns false for an unknown model id', () => {
       expect(modelSupportsVision('openai', 'no-such-model')).toBe(false);
+    });
+  });
+
+  describe('modelSupportsThinking', () => {
+    it('reports thinking for reasoning models', () => {
+      expect(modelSupportsThinking('openai', 'o4-mini')).toBe(true);
+      expect(modelSupportsThinking('anthropic', 'claude-sonnet-4-5')).toBe(true);
+      expect(modelSupportsThinking('deepseek', 'deepseek-reasoner')).toBe(true);
+      expect(modelSupportsThinking('perplexity', 'sonar-reasoning')).toBe(true);
+    });
+
+    it('reports no thinking for plain chat models', () => {
+      expect(modelSupportsThinking('openai', 'gpt-4o')).toBe(false);
+      expect(modelSupportsThinking('deepseek', 'deepseek-chat')).toBe(false);
+    });
+  });
+
+  describe('modelSupportsTools', () => {
+    it('reports tool support for function-calling models', () => {
+      expect(modelSupportsTools('openai', 'gpt-4o')).toBe(true);
+      expect(modelSupportsTools('anthropic', 'claude-3-5-haiku-latest')).toBe(true);
+      expect(modelSupportsTools('groq', 'llama-3.3-70b-versatile')).toBe(true);
+    });
+
+    it('reports no tools for search/reasoning-only models', () => {
+      expect(modelSupportsTools('perplexity', 'sonar')).toBe(false);
+      expect(modelSupportsTools('deepseek', 'deepseek-reasoner')).toBe(false);
+    });
+  });
+
+  describe('findModel', () => {
+    it('returns the catalog entry or undefined', () => {
+      expect(findModel('openai', 'gpt-4o')?.label).toBe('GPT-4o');
+      expect(findModel('openai', 'nope')).toBeUndefined();
     });
   });
 });

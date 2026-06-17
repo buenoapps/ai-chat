@@ -37,9 +37,10 @@ Targets iOS and Android.
   install its package, add a `ProviderType` (`src/lib/types.ts`), a `FACTORIES`
   entry, and a `MODELS`/`PROVIDER_LABELS` entry (`src/lib/ai/models.ts`).
   `convertToModelMessages` is **async** in v6 — `await` it.
-  - `MODELS` entries carry a `vision?: boolean` flag; `modelSupportsVision()`
-    drives the `VisionBadge` shown in the provider form, model picker, and
-    saved-providers list.
+  - `MODELS` entries carry `vision?`/`thinking?`/`tools?` capability flags;
+    `modelSupports{Vision,Thinking,Tools}()` + `findModel()` drive the
+    `CapabilityBadges` shown in the provider form, model picker, and
+    saved-providers list (and vision gates image attachments in the chat).
 - **State:** React contexts in `src/context/` — `ProvidersProvider` (loads keys
   into memory so the transport can read them synchronously) and `ChatsProvider`.
 - **Storage:** `src/lib/storage.ts`. Chats + provider metadata in AsyncStorage;

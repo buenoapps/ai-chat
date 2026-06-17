@@ -3,13 +3,13 @@ import { useRouter } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { Fab } from '@/components/fab';
+import { CapabilityBadges } from '@/components/capability-badges';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { VisionBadge } from '@/components/vision-badge';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
-import { MODELS, PROVIDER_LABELS, modelSupportsVision } from '@/lib/ai/models';
+import { MODELS, PROVIDER_LABELS, findModel } from '@/lib/ai/models';
 
 export default function ProvidersScreen() {
   const theme = useTheme();
@@ -48,7 +48,7 @@ export default function ProvidersScreen() {
                     <ThemedText type="default" style={styles.rowTitle}>
                       {item.name}
                     </ThemedText>
-                    {modelSupportsVision(item.type, item.model) ? <VisionBadge /> : null}
+                    <CapabilityBadges model={findModel(item.type, item.model)} compact />
                   </View>
                   <ThemedText type="small" themeColor="textSecondary">
                     {PROVIDER_LABELS[item.type]} · {model}
