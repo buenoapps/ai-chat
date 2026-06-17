@@ -43,6 +43,11 @@ Targets iOS and Android.
   **API keys only in `expo-secure-store`**, keyed by provider id.
 - **Theming:** `src/constants/theme.ts` (`Colors.light`/`Colors.dark`),
   `src/hooks/use-theme.ts`. Components use `ThemedText`/`ThemedView`.
+- **Message parts:** `components/chat-bubble.tsx` renders every `UIMessage`
+  part type — text, images, `reasoning` (collapsible), `tool-*`/`dynamic-tool`
+  (cards), non-image `file` (chip), and `source-url`/`source-document`
+  (`SourcesList`); helpers live in `components/message-parts.tsx`. `step-start`
+  and `data-*` are intentionally ignored.
 - **Markdown:** assistant messages render via `components/markdown.tsx`
   (`react-native-marked` `useMarkdown` + a `Renderer` whose `code()` returns a
   highlighted `CodeBlock` using `react-native-code-highlighter`). User messages

@@ -32,7 +32,8 @@ left out because they don't fit the single-key BYOK flow.
   routing, or beta flags.
 - **Rich responses.** Assistant messages render **markdown** with
   **syntax-highlighted code blocks** (per-language coloring, a copy button, and
-  horizontal scroll). User messages stay literal.
+  horizontal scroll), plus **reasoning** (collapsible), **citations/sources**,
+  tool-call cards, and non-image file attachments. User messages stay literal.
 - **Image attachments** via Camera, Photo Library, or Files — sent to
   vision-capable models as multimodal input.
 - **Light & dark mode**, following the system appearance.
