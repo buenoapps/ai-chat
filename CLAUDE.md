@@ -54,5 +54,6 @@ backend. Targets iOS and Android.
 - `jest.mock` factories must not reference outer variables unless they are
   prefixed with `mock`; for module mocks, define impls inside the factory and
   import the mocked module to assert (ES imports are hoisted above `const`s).
-- Tests live in `__tests__/` folders beside the code. App screens (`src/app/`)
-  are excluded from coverage.
+- Tests are co-located next to the code as `<name>.test.ts(x)` (e.g.
+  `src/lib/id.test.ts`). App screens (`src/app/`) and `*.test.*` files are
+  excluded from coverage.

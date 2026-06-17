@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react-native';
 
-import { ThemedView } from '../themed-view';
+import { ThemedView } from './themed-view';
 
 describe('ThemedView', () => {
   it('renders with a themed background color', async () => {

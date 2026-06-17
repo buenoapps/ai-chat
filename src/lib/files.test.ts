@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { imagePart, uriToDataUrl } from '../files';
+import { imagePart, uriToDataUrl } from './files';
 
 describe('imagePart', () => {
   it('builds a file UI part for an image', () => {

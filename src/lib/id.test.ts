@@ -1,4 +1,4 @@
-import { generateId } from '../id';
+import { generateId } from './id';
 
 describe('generateId', () => {
   it('returns a non-empty string', () => {

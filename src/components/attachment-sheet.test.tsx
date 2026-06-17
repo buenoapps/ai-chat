@@ -2,7 +2,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
-import { AttachmentSheet } from '../attachment-sheet';
+import { AttachmentSheet } from './attachment-sheet';
 
 beforeEach(() => jest.clearAllMocks());
 

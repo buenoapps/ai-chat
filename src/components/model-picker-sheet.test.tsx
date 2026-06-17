@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import { ModelPickerSheet } from '../model-picker-sheet';
+import { ModelPickerSheet } from './model-picker-sheet';
 import type { Provider } from '@/lib/types';
 
 const mockProviders = jest.fn();

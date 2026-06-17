@@ -1,7 +1,7 @@
 import { Text } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import { BottomSheet } from '../bottom-sheet';
+import { BottomSheet } from './bottom-sheet';
 
 describe('BottomSheet', () => {
   it('renders the title and children when visible', async () => {

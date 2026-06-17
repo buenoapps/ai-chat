@@ -1,4 +1,4 @@
-import { MODELS, PROVIDER_LABELS, defaultModelFor } from '../models';
+import { MODELS, PROVIDER_LABELS, defaultModelFor } from './models';
 
 describe('models catalog', () => {
   it('exposes models for each provider type', () => {

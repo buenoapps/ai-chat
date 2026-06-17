@@ -12,7 +12,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { fetch as expoFetch } from 'expo/fetch';
 
-import { resolveModel } from '../providers';
+import { resolveModel } from './providers';
 
 const mockedCreateOpenAI = createOpenAI as unknown as jest.Mock;
 const mockedCreateAnthropic = createAnthropic as unknown as jest.Mock;

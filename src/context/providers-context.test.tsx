@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
-import { ProvidersProvider, useProviders } from '../providers-context';
+import { ProvidersProvider, useProviders } from './providers-context';
 import { getApiKey } from '@/lib/storage';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (

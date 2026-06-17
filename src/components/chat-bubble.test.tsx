@@ -1,7 +1,7 @@
 import type { UIMessage } from 'ai';
 import { render, screen } from '@testing-library/react-native';
 
-import { ChatBubble } from '../chat-bubble';
+import { ChatBubble } from './chat-bubble';
 
 describe('ChatBubble', () => {
   it('renders message text', async () => {

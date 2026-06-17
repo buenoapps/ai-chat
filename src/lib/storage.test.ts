@@ -8,8 +8,8 @@ import {
   saveChats,
   saveProviders,
   setApiKey,
-} from '../storage';
-import type { Chat, Provider } from '../types';
+} from './storage';
+import type { Chat, Provider } from './types';
 
 beforeEach(async () => {
   await AsyncStorage.clear();

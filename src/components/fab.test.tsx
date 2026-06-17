@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import { Fab } from '../fab';
+import { Fab } from './fab';
 
 describe('Fab', () => {
   it('calls onPress when tapped', async () => {

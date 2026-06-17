@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UIMessage } from 'ai';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
-import { ChatsProvider, deriveTitle, useChats } from '../chats-context';
+import { ChatsProvider, deriveTitle, useChats } from './chats-context';
 
 function userMessage(text: string): UIMessage {
   return { id: 'm1', role: 'user', parts: [{ type: 'text', text }] };

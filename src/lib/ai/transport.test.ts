@@ -2,12 +2,12 @@ jest.mock('ai', () => ({
   streamText: jest.fn(() => ({ toUIMessageStream: () => 'UI_STREAM' })),
   convertToModelMessages: jest.fn(async (messages: unknown) => messages),
 }));
-jest.mock('../providers', () => ({ resolveModel: jest.fn(() => 'RESOLVED_MODEL') }));
+jest.mock('./providers', () => ({ resolveModel: jest.fn(() => 'RESOLVED_MODEL') }));
 
 import { convertToModelMessages, streamText } from 'ai';
 
-import { resolveModel } from '../providers';
-import { LocalChatTransport, type ActiveModel } from '../transport';
+import { resolveModel } from './providers';
+import { LocalChatTransport, type ActiveModel } from './transport';
 
 const mockedStreamText = streamText as unknown as jest.Mock;
 const mockedConvert = convertToModelMessages as unknown as jest.Mock;
