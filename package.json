@@ -11,7 +11,11 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "eas": "eas",
+    "build:ios": "eas build --platform ios --auto-submit",
+    "expo": "expo",
+    "fix:dependencies": "expo install --fix"
   },
   "main": "expo-router/entry",
   "dependencies": {
