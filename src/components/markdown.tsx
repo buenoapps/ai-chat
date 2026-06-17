@@ -135,7 +135,9 @@ export function Markdown({ content }: { content: string }) {
     },
     styles: {
       text: { color: theme.text, fontSize: 16, lineHeight: 24 },
-      paragraph: { marginVertical: Spacing.one, paddingTop: 0 },
+      // Only bottom spacing: a top margin would push a (loose) list item's
+      // paragraph text below its marker number, breaking alignment.
+      paragraph: { marginTop: 0, marginBottom: Spacing.two, paddingTop: 0 },
       strong: { fontWeight: '700' },
       em: { fontStyle: 'italic' },
       link: { color: theme.tint },
