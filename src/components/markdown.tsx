@@ -75,6 +75,14 @@ export function CodeBlock({ code, language }: { code: string; language?: string 
  * and makes the rendered text selectable (long-press to copy). Links are left
  * un-overridden so taps still open them. */
 class MarkdownRenderer extends Renderer implements RendererInterface {
+  // react-native-marked wraps list/paragraph content in a Text with an empty
+  // style, so without a base the wrapper falls back to default font metrics and
+  // its text no longer lines up with the (styled) list marker. Merging a base
+  // text style onto every text node keeps line height/size consistent.
+  constructor(private readonly baseTextStyle: TextStyle) {
+    super();
+  }
+
   private selectable(node: ReactNode): ReactNode {
     return isValidElement(node)
       ? cloneElement(node as ReactElement<{ selectable?: boolean }>, { selectable: true })
@@ -86,7 +94,7 @@ class MarkdownRenderer extends Renderer implements RendererInterface {
   }
 
   text(text: string | ReactNode[], styles?: TextStyle): ReactNode {
-    return this.selectable(super.text(text, styles));
+    return this.selectable(super.text(text, { ...this.baseTextStyle, ...styles }));
   }
 
   strong(children: string | ReactNode[], styles?: TextStyle): ReactNode {
@@ -114,7 +122,10 @@ class MarkdownRenderer extends Renderer implements RendererInterface {
 export function Markdown({ content }: { content: string }) {
   const theme = useTheme();
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const renderer = useMemo(() => new MarkdownRenderer(), []);
+  const renderer = useMemo(
+    () => new MarkdownRenderer({ color: theme.text, fontSize: 16, lineHeight: 24 }),
+    [theme.text],
+  );
 
   const elements = useMarkdown(content, {
     colorScheme: scheme,
