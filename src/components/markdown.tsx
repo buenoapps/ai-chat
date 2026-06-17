@@ -59,6 +59,10 @@ export function CodeBlock({ code, language }: { code: string; language?: string 
         hljsStyle={scheme === 'dark' ? atomOneDark : atomOneLight}
         textStyle={styles.codeText}
         language={language}
+        // Neutralize react-syntax-highlighter's default `PreTag` style
+        // (`backgroundColor: '#fff'` + an invalid `'0.5em'` padding) that
+        // otherwise renders an oversized white box around the snippet.
+        customStyle={{ backgroundColor: 'transparent', padding: 0, margin: 0 }}
         scrollViewProps={{ contentContainerStyle: styles.codeScroll }}
       >
         {value}
