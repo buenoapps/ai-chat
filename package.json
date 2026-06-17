@@ -1,7 +1,19 @@
 {
   "name": "aichat",
-  "main": "expo-router/entry",
+  "description": "AI Chat — a fully client-side Expo app for chatting with many LLM providers using your own API keys (BYOK).",
   "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "expo lint",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "main": "expo-router/entry",
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.84",
     "@ai-sdk/cerebras": "^2.0.57",
@@ -60,16 +72,6 @@
     "react-test-renderer": "^19.2.3",
     "typescript": "~6.0.3"
   },
-  "scripts": {
-    "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "lint": "expo lint",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
   "jest": {
     "preset": "jest-expo",
     "setupFilesAfterEnv": [
@@ -90,6 +92,5 @@
       "!src/**/*.test.{ts,tsx}",
       "!src/**/*.d.ts"
     ]
-  },
-  "private": true
+  }
 }
