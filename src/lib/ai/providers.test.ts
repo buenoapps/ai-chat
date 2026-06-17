@@ -43,7 +43,11 @@ describe('resolveModel', () => {
     const model = resolveModel('openai', 'gpt-4o', 'sk-openai');
 
     const create = createByType.openai!;
-    expect(create).toHaveBeenCalledWith({ apiKey: 'sk-openai', fetch: expoFetch });
+    expect(create).toHaveBeenCalledWith({
+      apiKey: 'sk-openai',
+      fetch: expoFetch,
+      baseURL: undefined,
+    });
     expect(create.mock.results[0].value as jest.Mock).toHaveBeenCalledWith('gpt-4o');
     expect(model).toEqual({ id: 'gpt-4o' });
   });
@@ -53,10 +57,32 @@ describe('resolveModel', () => {
     (type) => {
       const model = resolveModel(type, 'some-model', 'the-key');
       const create = createByType[type]!;
-      expect(create).toHaveBeenCalledWith({ apiKey: 'the-key', fetch: expoFetch });
+      expect(create).toHaveBeenCalledWith({
+        apiKey: 'the-key',
+        fetch: expoFetch,
+        baseURL: undefined,
+      });
       expect(model).toEqual({ id: 'some-model' });
     },
   );
+
+  it('forwards a custom base URL when provided', () => {
+    resolveModel('openai', 'gpt-4o', 'sk', 'https://proxy.example/v1');
+    expect(createByType.openai!).toHaveBeenCalledWith({
+      apiKey: 'sk',
+      fetch: expoFetch,
+      baseURL: 'https://proxy.example/v1',
+    });
+  });
+
+  it('treats an empty base URL as the provider default (undefined)', () => {
+    resolveModel('openai', 'gpt-4o', 'sk', '');
+    expect(createByType.openai!).toHaveBeenCalledWith({
+      apiKey: 'sk',
+      fetch: expoFetch,
+      baseURL: undefined,
+    });
+  });
 
   it('has a factory wired for every provider type (no throw)', () => {
     for (const type of PROVIDER_TYPES) {

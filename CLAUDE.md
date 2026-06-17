@@ -28,10 +28,13 @@ Targets iOS and Android.
   `ChatTransport` for `useChat` (`@ai-sdk/react`, AI SDK **v6**). Its
   `sendMessages()` runs `streamText()` in-process and returns
   `toUIMessageStream()`. `providers.ts` maps each `ProviderType` to its
-  `@ai-sdk/*` `createX({ apiKey, fetch })` factory (a `FACTORIES` record checked
-  for completeness via `satisfies`), using `expo/fetch` for native streaming. To
-  add a provider: install its package, add a `ProviderType` (`src/lib/types.ts`),
-  a `FACTORIES` entry, and a `MODELS`/`PROVIDER_LABELS` entry (`src/lib/ai/models.ts`).
+  `@ai-sdk/*` `createX({ apiKey, fetch, baseURL })` factory (a `FACTORIES` record
+  checked for completeness via `satisfies`), using `expo/fetch` for native
+  streaming. Using a provider instance (not a plain model-id string) means calls
+  go **directly to the provider, not the Vercel AI Gateway**; an optional
+  per-provider `baseUrl` overrides the default endpoint. To add a provider:
+  install its package, add a `ProviderType` (`src/lib/types.ts`), a `FACTORIES`
+  entry, and a `MODELS`/`PROVIDER_LABELS` entry (`src/lib/ai/models.ts`).
   `convertToModelMessages` is **async** in v6 — `await` it.
 - **State:** React contexts in `src/context/` — `ProvidersProvider` (loads keys
   into memory so the transport can read them synchronously) and `ChatsProvider`.

@@ -76,7 +76,7 @@ function Conversation({ chatId }: { chatId: string }) {
     const p = providers.find((x) => x.id === selectedProviderId);
     const apiKey = p ? getKey(p.id) : undefined;
     if (!p || !apiKey) return null;
-    return { type: p.type, modelId: p.model, apiKey };
+    return { type: p.type, modelId: p.model, apiKey, baseUrl: p.baseUrl };
   }, [providers, selectedProviderId, getKey]);
   const activeModelRef = useRef(activeModel);
   activeModelRef.current = activeModel;

@@ -14,6 +14,7 @@ export type ActiveModel = {
   type: ProviderType;
   modelId: string;
   apiKey: string;
+  baseUrl?: string;
 };
 
 /**
@@ -40,7 +41,7 @@ export class LocalChatTransport implements ChatTransport<UIMessage> {
       );
     }
 
-    const model = resolveModel(active.type, active.modelId, active.apiKey);
+    const model = resolveModel(active.type, active.modelId, active.apiKey, active.baseUrl);
     const result = streamText({
       model,
       messages: await convertToModelMessages(messages),

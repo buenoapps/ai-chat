@@ -30,6 +30,7 @@ export default function ProviderFormScreen() {
   const [name, setName] = useState(existing?.name ?? '');
   const [type, setType] = useState<ProviderType>(existing?.type ?? 'openai');
   const [model, setModel] = useState(existing?.model ?? defaultModelFor('openai'));
+  const [baseUrl, setBaseUrl] = useState(existing?.baseUrl ?? '');
   const [apiKey, setApiKey] = useState('');
 
   useLayoutEffect(() => {
@@ -50,7 +51,7 @@ export default function ProviderFormScreen() {
       Alert.alert('API key required', 'Please enter the API key for this provider.');
       return;
     }
-    const input = { name: name.trim(), type, model };
+    const input = { name: name.trim(), type, model, baseUrl: baseUrl.trim() || undefined };
     if (isNew) {
       await addProvider(input, apiKey.trim());
     } else if (existing) {
@@ -158,6 +159,24 @@ export default function ProviderFormScreen() {
         />
         <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
           Keys are stored securely on this device and sent only to the provider.
+        </ThemedText>
+
+        <ThemedText type="smallBold" style={styles.label}>
+          API BASE URL (OPTIONAL)
+        </ThemedText>
+        <TextInput
+          style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+          value={baseUrl}
+          onChangeText={setBaseUrl}
+          placeholder="Leave blank for the provider's default"
+          placeholderTextColor={theme.textSecondary}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+          inputMode="url"
+        />
+        <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
+          Override the endpoint for a proxy or self-hosted / compatible gateway.
         </ThemedText>
 
         <Pressable

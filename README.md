@@ -26,6 +26,9 @@ left out because they don't fit the single-key BYOK flow.
   `useChat` from `@ai-sdk/react` with a custom on-device transport.
 - **Multiple providers & models.** Save several provider/model configurations,
   each with its own model and key. Pick one per chat from a half-screen sheet.
+- **Direct-to-provider calls** (no Vercel AI Gateway) via per-provider model
+  instances, with an optional **custom API base URL** per provider for proxies
+  or self-hosted / OpenAI-compatible gateways.
 - **Image attachments** via Camera, Photo Library, or Files — sent to
   vision-capable models as multimodal input.
 - **Light & dark mode**, following the system appearance.

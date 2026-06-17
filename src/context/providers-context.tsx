@@ -22,6 +22,7 @@ export type ProviderInput = {
   name: string;
   type: ProviderType;
   model: string;
+  baseUrl?: string;
 };
 
 type ProvidersContextValue = {

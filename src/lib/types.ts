@@ -28,6 +28,8 @@ export type Provider = {
   type: ProviderType;
   /** Provider model id, e.g. "gpt-4o" or "claude-3-5-sonnet-latest". */
   model: string;
+  /** Optional custom API base URL; falls back to the provider's default. */
+  baseUrl?: string;
   createdAt: number;
 };
 

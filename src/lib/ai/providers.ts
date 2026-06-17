@@ -45,18 +45,22 @@ const FACTORIES = {
 type ModelFactory = (opts: {
   apiKey: string;
   fetch: typeof globalThis.fetch;
+  baseURL?: string;
 }) => (modelId: string) => LanguageModel;
 
 /**
  * Build a configured language model for the given provider family, model id and
  * API key. The provider client is created on demand so keys never need to be
- * held in module state.
+ * held in module state. An optional `baseUrl` overrides the provider's default
+ * endpoint (for proxies, self-hosted/compatible gateways, or regional hosts);
+ * when omitted the provider's own default base URL is used.
  */
 export function resolveModel(
   type: ProviderType,
   modelId: string,
   apiKey: string,
+  baseUrl?: string,
 ): LanguageModel {
   const create = FACTORIES[type] as ModelFactory;
-  return create({ apiKey, fetch: streamingFetch })(modelId);
+  return create({ apiKey, fetch: streamingFetch, baseURL: baseUrl || undefined })(modelId);
 }

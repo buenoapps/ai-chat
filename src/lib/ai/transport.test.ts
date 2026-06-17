@@ -40,12 +40,31 @@ describe('LocalChatTransport', () => {
 
     const stream = await transport.sendMessages(sendArgs(messages));
 
-    expect(mockedResolveModel).toHaveBeenCalledWith('openai', 'gpt-4o', 'sk');
+    expect(mockedResolveModel).toHaveBeenCalledWith('openai', 'gpt-4o', 'sk', undefined);
     expect(mockedConvert).toHaveBeenCalledWith(messages);
     expect(mockedStreamText).toHaveBeenCalledWith(
       expect.objectContaining({ model: 'RESOLVED_MODEL', messages }),
     );
     expect(stream).toBe('UI_STREAM');
+  });
+
+  it('forwards a custom base URL to the resolver', async () => {
+    const active: ActiveModel = {
+      type: 'openai',
+      modelId: 'gpt-4o',
+      apiKey: 'sk',
+      baseUrl: 'https://proxy.example/v1',
+    };
+    const transport = new LocalChatTransport(() => active);
+
+    await transport.sendMessages(sendArgs([]));
+
+    expect(mockedResolveModel).toHaveBeenCalledWith(
+      'openai',
+      'gpt-4o',
+      'sk',
+      'https://proxy.example/v1',
+    );
   });
 
   it('does not support stream reconnection', async () => {
