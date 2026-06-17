@@ -8,7 +8,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { Pressable, StyleSheet, View, type TextStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 import CodeHighlighter from 'react-native-code-highlighter';
 import { Renderer, useMarkdown, type RendererInterface } from 'react-native-marked';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -116,6 +116,36 @@ class MarkdownRenderer extends Renderer implements RendererInterface {
   heading(text: string | ReactNode[], styles?: TextStyle): ReactNode {
     return this.selectable(super.heading(text, styles));
   }
+
+  // Render lists ourselves: a fixed-width, right-aligned marker plus a flex:1
+  // content column. This top-aligns the marker with the first line and lets
+  // long text wrap instead of overflowing (the upstream @jsamr layout did not
+  // give the content `flex`, which caused misalignment and overlap).
+  list(
+    ordered: boolean,
+    li: ReactNode[],
+    _listStyle?: ViewStyle,
+    textStyle?: TextStyle,
+    startIndex?: number,
+  ): ReactNode {
+    const start = startIndex ?? 1;
+    return (
+      <View key={`list-${ordered ? 'o' : 'u'}-${start}-${li.length}`} style={styles.list}>
+        {li.map((item, i) => (
+          <View key={i} style={styles.listRow}>
+            <Text selectable style={[textStyle, styles.listMarker]}>
+              {ordered ? `${start + i}.` : '•'}
+            </Text>
+            {item}
+          </View>
+        ))}
+      </View>
+    );
+  }
+
+  listItem(children: ReactNode[], itemStyle?: ViewStyle): ReactNode {
+    return <View style={[itemStyle, styles.listItemContent]}>{children}</View>;
+  }
 }
 
 /** Renders assistant message text as markdown with highlighted code blocks. */
@@ -160,6 +190,10 @@ export function Markdown({ content }: { content: string }) {
 
 const styles = StyleSheet.create({
   container: { width: '100%' },
+  list: { width: '100%', marginVertical: Spacing.one, gap: 2 },
+  listRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  listMarker: { minWidth: 22, textAlign: 'right', marginRight: Spacing.two },
+  listItemContent: { flex: 1, flexShrink: 1 },
   codeContainer: {
     borderRadius: Spacing.two,
     borderWidth: StyleSheet.hairlineWidth,
