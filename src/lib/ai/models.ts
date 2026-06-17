@@ -1,31 +1,34 @@
 import type { ProviderType } from '@/lib/types';
 
-/** Selectable models per provider family, shown when configuring a provider. */
-export const MODELS: Record<ProviderType, { id: string; label: string }[]> = {
+export type ModelInfo = { id: string; label: string; vision?: boolean };
+
+/** Selectable models per provider family, shown when configuring a provider.
+ * `vision: true` marks models that accept image input (multimodal). */
+export const MODELS: Record<ProviderType, ModelInfo[]> = {
   openai: [
-    { id: 'gpt-4o', label: 'GPT-4o' },
-    { id: 'gpt-4o-mini', label: 'GPT-4o mini' },
-    { id: 'gpt-4.1', label: 'GPT-4.1' },
-    { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini' },
-    { id: 'o4-mini', label: 'o4-mini' },
+    { id: 'gpt-4o', label: 'GPT-4o', vision: true },
+    { id: 'gpt-4o-mini', label: 'GPT-4o mini', vision: true },
+    { id: 'gpt-4.1', label: 'GPT-4.1', vision: true },
+    { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini', vision: true },
+    { id: 'o4-mini', label: 'o4-mini', vision: true },
   ],
   anthropic: [
-    { id: 'claude-sonnet-4-5', label: 'Claude Sonnet 4.5' },
-    { id: 'claude-opus-4-1', label: 'Claude Opus 4.1' },
-    { id: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet' },
-    { id: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku' },
+    { id: 'claude-sonnet-4-5', label: 'Claude Sonnet 4.5', vision: true },
+    { id: 'claude-opus-4-1', label: 'Claude Opus 4.1', vision: true },
+    { id: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet', vision: true },
+    { id: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku', vision: true },
   ],
   google: [
-    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-    { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', vision: true },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', vision: true },
+    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', vision: true },
+    { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', vision: true },
   ],
   xai: [
-    { id: 'grok-4', label: 'Grok 4' },
-    { id: 'grok-3', label: 'Grok 3' },
+    { id: 'grok-4', label: 'Grok 4', vision: true },
+    { id: 'grok-3', label: 'Grok 3', vision: true },
     { id: 'grok-3-mini', label: 'Grok 3 mini' },
-    { id: 'grok-2-vision-1212', label: 'Grok 2 Vision' },
+    { id: 'grok-2-vision-1212', label: 'Grok 2 Vision', vision: true },
   ],
   groq: [
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
@@ -35,8 +38,8 @@ export const MODELS: Record<ProviderType, { id: string; label: string }[]> = {
   ],
   mistral: [
     { id: 'mistral-large-latest', label: 'Mistral Large' },
-    { id: 'mistral-small-latest', label: 'Mistral Small' },
-    { id: 'pixtral-large-latest', label: 'Pixtral Large' },
+    { id: 'mistral-small-latest', label: 'Mistral Small', vision: true },
+    { id: 'pixtral-large-latest', label: 'Pixtral Large', vision: true },
     { id: 'open-mistral-nemo', label: 'Mistral Nemo' },
   ],
   deepseek: [
@@ -49,10 +52,10 @@ export const MODELS: Record<ProviderType, { id: string; label: string }[]> = {
     { id: 'command-r', label: 'Command R' },
   ],
   perplexity: [
-    { id: 'sonar', label: 'Sonar' },
-    { id: 'sonar-pro', label: 'Sonar Pro' },
-    { id: 'sonar-reasoning', label: 'Sonar Reasoning' },
-    { id: 'sonar-reasoning-pro', label: 'Sonar Reasoning Pro' },
+    { id: 'sonar', label: 'Sonar', vision: true },
+    { id: 'sonar-pro', label: 'Sonar Pro', vision: true },
+    { id: 'sonar-reasoning', label: 'Sonar Reasoning', vision: true },
+    { id: 'sonar-reasoning-pro', label: 'Sonar Reasoning Pro', vision: true },
   ],
   togetherai: [
     { id: 'meta-llama/Llama-3.3-70B-Instruct-Turbo', label: 'Llama 3.3 70B Turbo' },
@@ -98,4 +101,9 @@ export const PROVIDER_TYPES = Object.keys(MODELS) as ProviderType[];
 
 export function defaultModelFor(type: ProviderType): string {
   return MODELS[type][0].id;
+}
+
+/** Whether the given provider/model accepts image input. */
+export function modelSupportsVision(type: ProviderType, modelId: string): boolean {
+  return MODELS[type].find((m) => m.id === modelId)?.vision ?? false;
 }

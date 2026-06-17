@@ -12,6 +12,7 @@ import {
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { VisionBadge } from '@/components/vision-badge';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
@@ -166,7 +167,12 @@ export default function ProviderFormScreen() {
                   },
                 ]}
               >
-                <ThemedText type="default">{m.label}</ThemedText>
+                <View style={styles.modelItemHeader}>
+                  <ThemedText type="default" style={styles.flex}>
+                    {m.label}
+                  </ThemedText>
+                  {m.vision ? <VisionBadge /> : null}
+                </View>
                 <ThemedText type="small" themeColor="textSecondary">
                   {m.id}
                 </ThemedText>
@@ -306,7 +312,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
   },
+  flex: { flex: 1 },
   modelList: { gap: Spacing.two },
+  modelItemHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   modelItem: {
     paddingVertical: Spacing.two + 2,
     paddingHorizontal: Spacing.three,

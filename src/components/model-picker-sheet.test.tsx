@@ -31,6 +31,20 @@ describe('ModelPickerSheet', () => {
     expect(screen.getByText(/Anthropic · Claude Sonnet 4.5/)).toBeOnTheScreen();
   });
 
+  it('shows a vision badge for a vision-capable model', async () => {
+    mockProviders.mockReturnValue([provider]); // claude-sonnet-4-5 supports vision
+    await render(<ModelPickerSheet visible onClose={jest.fn()} onSelect={jest.fn()} />);
+    expect(screen.getByLabelText('Supports vision')).toBeOnTheScreen();
+  });
+
+  it('omits the vision badge for a text-only model', async () => {
+    mockProviders.mockReturnValue([
+      { id: 'p2', name: 'My Llama', type: 'groq', model: 'llama-3.3-70b-versatile', createdAt: 1 },
+    ]);
+    await render(<ModelPickerSheet visible onClose={jest.fn()} onSelect={jest.fn()} />);
+    expect(screen.queryByLabelText('Supports vision')).toBeNull();
+  });
+
   it('selects a provider and closes', async () => {
     mockProviders.mockReturnValue([provider]);
     const onSelect = jest.fn();

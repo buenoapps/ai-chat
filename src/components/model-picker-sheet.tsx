@@ -5,9 +5,10 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
-import { MODELS, PROVIDER_LABELS } from '@/lib/ai/models';
+import { MODELS, PROVIDER_LABELS, modelSupportsVision } from '@/lib/ai/models';
 import { BottomSheet } from './bottom-sheet';
 import { ThemedText } from './themed-text';
+import { VisionBadge } from './vision-badge';
 
 type ModelPickerSheetProps = {
   visible: boolean;
@@ -69,7 +70,10 @@ export function ModelPickerSheet({ visible, onClose, selectedId, onSelect }: Mod
                 ]}
               >
                 <View style={styles.rowText}>
-                  <ThemedText type="default">{p.name}</ThemedText>
+                  <View style={styles.rowTitle}>
+                    <ThemedText type="default">{p.name}</ThemedText>
+                    {modelSupportsVision(p.type, p.model) ? <VisionBadge /> : null}
+                  </View>
                   <ThemedText type="small" themeColor="textSecondary">
                     {PROVIDER_LABELS[p.type]} · {modelLabel(p.type, p.model)}
                   </ThemedText>
@@ -97,6 +101,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   rowText: { gap: 2, flex: 1 },
+  rowTitle: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   empty: { alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.four },
   emptyText: { textAlign: 'center' },
   addBtn: {

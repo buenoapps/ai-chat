@@ -1,4 +1,10 @@
-import { MODELS, PROVIDER_LABELS, PROVIDER_TYPES, defaultModelFor } from './models';
+import {
+  MODELS,
+  PROVIDER_LABELS,
+  PROVIDER_TYPES,
+  defaultModelFor,
+  modelSupportsVision,
+} from './models';
 
 describe('models catalog', () => {
   it('lists several provider families', () => {
@@ -35,5 +41,26 @@ describe('models catalog', () => {
     for (const type of PROVIDER_TYPES) {
       expect(defaultModelFor(type)).toBe(MODELS[type][0].id);
     }
+  });
+
+  describe('modelSupportsVision', () => {
+    it('reports vision for multimodal models', () => {
+      expect(modelSupportsVision('openai', 'gpt-4o')).toBe(true);
+      expect(modelSupportsVision('anthropic', 'claude-3-5-haiku-latest')).toBe(true);
+      expect(modelSupportsVision('google', 'gemini-2.5-pro')).toBe(true);
+      expect(modelSupportsVision('perplexity', 'sonar')).toBe(true);
+      expect(modelSupportsVision('mistral', 'pixtral-large-latest')).toBe(true);
+    });
+
+    it('reports no vision for text-only models', () => {
+      expect(modelSupportsVision('groq', 'llama-3.3-70b-versatile')).toBe(false);
+      expect(modelSupportsVision('deepseek', 'deepseek-chat')).toBe(false);
+      expect(modelSupportsVision('togetherai', 'Qwen/Qwen2.5-72B-Instruct-Turbo')).toBe(false);
+      expect(modelSupportsVision('cohere', 'command-a-03-2025')).toBe(false);
+    });
+
+    it('returns false for an unknown model id', () => {
+      expect(modelSupportsVision('openai', 'no-such-model')).toBe(false);
+    });
   });
 });

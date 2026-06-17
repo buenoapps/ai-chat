@@ -5,10 +5,11 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Fab } from '@/components/fab';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { VisionBadge } from '@/components/vision-badge';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
-import { MODELS, PROVIDER_LABELS } from '@/lib/ai/models';
+import { MODELS, PROVIDER_LABELS, modelSupportsVision } from '@/lib/ai/models';
 
 export default function ProvidersScreen() {
   const theme = useTheme();
@@ -43,9 +44,12 @@ export default function ProvidersScreen() {
                 ]}
               >
                 <View style={styles.rowText}>
-                  <ThemedText type="default" style={styles.rowTitle}>
-                    {item.name}
-                  </ThemedText>
+                  <View style={styles.rowTitleRow}>
+                    <ThemedText type="default" style={styles.rowTitle}>
+                      {item.name}
+                    </ThemedText>
+                    {modelSupportsVision(item.type, item.model) ? <VisionBadge /> : null}
+                  </View>
                   <ThemedText type="small" themeColor="textSecondary">
                     {PROVIDER_LABELS[item.type]} · {model}
                   </ThemedText>
@@ -78,6 +82,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
   },
   rowText: { flex: 1, gap: 2 },
+  rowTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   rowTitle: { fontWeight: '600' },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, padding: Spacing.four },
   emptyText: { textAlign: 'center' },
