@@ -18,8 +18,8 @@ export type ActiveModel = {
 
 /**
  * A {@link ChatTransport} that runs the model in-process instead of POSTing to
- * an HTTP endpoint. This lets `useChat` talk to OpenAI/Anthropic directly from
- * the device using the user's own API key — no backend required.
+ * an HTTP endpoint. This lets `useChat` talk to the selected provider directly
+ * from the device using the user's own API key — no backend required.
  *
  * `getActiveModel` is read lazily on every send so the chat always uses the
  * model currently selected for the conversation.

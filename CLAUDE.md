@@ -2,9 +2,11 @@
 
 # AI Chat — project guide
 
-A fully client-side Expo (React Native) app for chatting with OpenAI and
-Anthropic models using the user's own on-device API keys (BYOK). There is no
-backend. Targets iOS and Android.
+A fully client-side Expo (React Native) app for chatting with many LLM providers
+(every single-API-key `@ai-sdk/*` family — OpenAI, Anthropic, Google, xAI, Groq,
+Mistral, DeepSeek, Cohere, Perplexity, Together.ai, Fireworks, DeepInfra,
+Cerebras) using the user's own on-device API keys (BYOK). There is no backend.
+Targets iOS and Android.
 
 ## Commands
 
@@ -25,9 +27,12 @@ backend. Targets iOS and Android.
 - **AI:** `src/lib/ai/`. `LocalChatTransport` (`transport.ts`) is a custom
   `ChatTransport` for `useChat` (`@ai-sdk/react`, AI SDK **v6**). Its
   `sendMessages()` runs `streamText()` in-process and returns
-  `toUIMessageStream()`. Providers (`providers.ts`) are built with `createOpenAI`/
-  `createAnthropic` using `expo/fetch` for native streaming. `convertToModelMessages`
-  is **async** in v6 — `await` it.
+  `toUIMessageStream()`. `providers.ts` maps each `ProviderType` to its
+  `@ai-sdk/*` `createX({ apiKey, fetch })` factory (a `FACTORIES` record checked
+  for completeness via `satisfies`), using `expo/fetch` for native streaming. To
+  add a provider: install its package, add a `ProviderType` (`src/lib/types.ts`),
+  a `FACTORIES` entry, and a `MODELS`/`PROVIDER_LABELS` entry (`src/lib/ai/models.ts`).
+  `convertToModelMessages` is **async** in v6 — `await` it.
 - **State:** React contexts in `src/context/` — `ProvidersProvider` (loads keys
   into memory so the transport can read them synchronously) and `ChatsProvider`.
 - **Storage:** `src/lib/storage.ts`. Chats + provider metadata in AsyncStorage;

@@ -1,9 +1,16 @@
 # AI Chat
 
-A modern, minimal Expo (React Native) app for chatting with multiple LLM
-providers — **OpenAI** and **Anthropic** — using your own API keys. Configure
-as many provider/model entries as you like, switch between them per chat, attach
-images, and keep your full chat history on device.
+A modern, minimal Expo (React Native) app for chatting with many LLM providers
+using your own API keys. Configure as many provider/model entries as you like,
+switch between them per chat, attach images, and keep your full chat history on
+device.
+
+**Supported providers** (every `@ai-sdk/*` family that authenticates with a
+single API key): OpenAI, Anthropic, Google (Gemini), xAI (Grok), Groq, Mistral,
+DeepSeek, Cohere, Perplexity, Together.ai, Fireworks, DeepInfra, and Cerebras.
+Providers that need multi-field credentials — Amazon Bedrock (AWS keys/region),
+Google Vertex (service account), Azure OpenAI (resource name) — are intentionally
+left out because they don't fit the single-key BYOK flow.
 
 > **Bring your own key (BYOK):** This app has no backend. Your API keys are
 > stored securely on the device and used to call the provider APIs directly.
@@ -17,7 +24,7 @@ images, and keep your full chat history on device.
   action button starts a new chat.
 - **Streaming chat** powered by the [Vercel AI SDK](https://ai-sdk.dev) —
   `useChat` from `@ai-sdk/react` with a custom on-device transport.
-- **Multiple providers & models.** Save several OpenAI/Anthropic configurations,
+- **Multiple providers & models.** Save several provider/model configurations,
   each with its own model and key. Pick one per chat from a half-screen sheet.
 - **Image attachments** via Camera, Photo Library, or Files — sent to
   vision-capable models as multimodal input.
@@ -65,7 +72,7 @@ for iOS, `a` for Android).
 ## Using the app
 
 1. Open **Settings** (gear icon, top-right) → **Providers & Models** → **+** to
-   add an OpenAI or Anthropic provider with a name, model, and API key.
+   add a provider (OpenAI, Anthropic, Google, Groq, …) with a name, model, and API key.
 2. From the start screen, tap the **+** FAB to start a new chat.
 3. Tap the model chip in the chat header to choose which saved model answers.
 4. Tap **+** in the input bar to attach an image from the camera, photo library,

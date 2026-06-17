@@ -14,10 +14,8 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
-import { MODELS, PROVIDER_LABELS, defaultModelFor } from '@/lib/ai/models';
+import { MODELS, PROVIDER_LABELS, PROVIDER_TYPES, defaultModelFor } from '@/lib/ai/models';
 import type { ProviderType } from '@/lib/types';
-
-const TYPES: ProviderType[] = ['openai', 'anthropic'];
 
 export default function ProviderFormScreen() {
   const theme = useTheme();
@@ -94,7 +92,7 @@ export default function ProviderFormScreen() {
           PROVIDER
         </ThemedText>
         <View style={styles.segment}>
-          {TYPES.map((t) => {
+          {PROVIDER_TYPES.map((t) => {
             const selected = t === type;
             return (
               <Pressable
@@ -193,11 +191,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     fontSize: 16,
   },
-  segment: { flexDirection: 'row', gap: Spacing.two },
+  segment: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   segmentItem: {
-    flex: 1,
     alignItems: 'center',
-    paddingVertical: Spacing.three,
+    paddingVertical: Spacing.two + 2,
+    paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
   },
   modelList: { gap: Spacing.two },

@@ -21,7 +21,7 @@ export default function ProvidersScreen() {
         <View style={styles.empty}>
           <Ionicons name="cube-outline" size={48} color={theme.textSecondary} />
           <ThemedText type="default" themeColor="textSecondary" style={styles.emptyText}>
-            Add an OpenAI or Anthropic provider with your API key to start chatting.
+            Add a provider with your API key to start chatting.
           </ThemedText>
         </View>
       ) : (

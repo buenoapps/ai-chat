@@ -1,7 +1,20 @@
 import type { UIMessage } from 'ai';
 
-/** Supported LLM provider families. */
-export type ProviderType = 'openai' | 'anthropic';
+/** Supported LLM provider families (those that authenticate with a single API key). */
+export type ProviderType =
+  | 'openai'
+  | 'anthropic'
+  | 'google'
+  | 'xai'
+  | 'groq'
+  | 'mistral'
+  | 'deepseek'
+  | 'cohere'
+  | 'perplexity'
+  | 'togetherai'
+  | 'fireworks'
+  | 'deepinfra'
+  | 'cerebras';
 
 /**
  * A user-configured provider entry. Each entry pairs a provider family with a
