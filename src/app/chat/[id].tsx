@@ -6,6 +6,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -25,7 +26,7 @@ import { Spacing } from '@/constants/theme';
 import { useChats } from '@/context/chats-context';
 import { useProviders } from '@/context/providers-context';
 import { useTheme } from '@/hooks/use-theme';
-import { MODELS } from '@/lib/ai/models';
+import { MODELS, modelSupportsVision } from '@/lib/ai/models';
 import { LocalChatTransport, type ActiveModel } from '@/lib/ai/transport';
 
 export default function ChatScreen() {
@@ -107,6 +108,9 @@ function Conversation({ chatId }: { chatId: string }) {
     ? (MODELS[selectedProvider.type].find((m) => m.id === selectedProvider.model)?.label ??
       selectedProvider.model)
     : 'Select model';
+  const canAttachImages = selectedProvider
+    ? modelSupportsVision(selectedProvider.type, selectedProvider.model)
+    : false;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -131,6 +135,31 @@ function Conversation({ chatId }: { chatId: string }) {
   function chooseProvider(providerId: string) {
     setSelectedProviderId(providerId);
     updateChat(chatId, { providerId });
+    // Drop staged images if the newly selected model can't accept them.
+    const next = providers.find((p) => p.id === providerId);
+    if (attachments.length > 0 && next && !modelSupportsVision(next.type, next.model)) {
+      setAttachments([]);
+      Alert.alert('Attachments removed', 'The selected model is text-only and cannot read images.');
+    }
+  }
+
+  function openAttachments() {
+    if (!selectedProvider) {
+      setPickerVisible(true); // pick a model first
+      return;
+    }
+    if (!canAttachImages) {
+      Alert.alert(
+        'Images not supported',
+        `${modelLabel} is text-only. Choose a vision-capable model to attach images.`,
+        [
+          { text: 'OK', style: 'cancel' },
+          { text: 'Choose model', onPress: () => setPickerVisible(true) },
+        ],
+      );
+      return;
+    }
+    setAttachVisible(true);
   }
 
   function handleSend() {
@@ -215,11 +244,16 @@ function Conversation({ chatId }: { chatId: string }) {
           ]}
         >
           <Pressable
-            onPress={() => setAttachVisible(true)}
+            onPress={openAttachments}
             style={styles.iconButton}
             accessibilityLabel="Add attachment"
+            accessibilityState={{ disabled: !canAttachImages }}
           >
-            <Ionicons name="add-circle-outline" size={28} color={theme.tint} />
+            <Ionicons
+              name="add-circle-outline"
+              size={28}
+              color={canAttachImages ? theme.tint : theme.textSecondary}
+            />
           </Pressable>
           <TextInput
             style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
