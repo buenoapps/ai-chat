@@ -30,6 +30,9 @@ left out because they don't fit the single-key BYOK flow.
   instances, with an optional **custom API base URL** and **custom HTTP headers**
   per provider for proxies, self-hosted / OpenAI-compatible gateways, org/project
   routing, or beta flags.
+- **Rich responses.** Assistant messages render **markdown** with
+  **syntax-highlighted code blocks** (per-language coloring, a copy button, and
+  horizontal scroll). User messages stay literal.
 - **Image attachments** via Camera, Photo Library, or Files — sent to
   vision-capable models as multimodal input.
 - **Light & dark mode**, following the system appearance.

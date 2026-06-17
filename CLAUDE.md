@@ -43,6 +43,11 @@ Targets iOS and Android.
   **API keys only in `expo-secure-store`**, keyed by provider id.
 - **Theming:** `src/constants/theme.ts` (`Colors.light`/`Colors.dark`),
   `src/hooks/use-theme.ts`. Components use `ThemedText`/`ThemedView`.
+- **Markdown:** assistant messages render via `components/markdown.tsx`
+  (`react-native-marked` `useMarkdown` + a `Renderer` whose `code()` returns a
+  highlighted `CodeBlock` using `react-native-code-highlighter`). User messages
+  stay plain text. In jest these libs are mocked (`jest.setup.js`) and the hljs
+  style import is stubbed via `moduleNameMapper`.
 - **Path alias:** `@/*` → `src/*` (see tsconfig + jest `moduleNameMapper`).
 
 ## Conventions

@@ -43,6 +43,23 @@ jest.mock('expo-image', () => ({
   Image: (props) => require('react').createElement('ExpoImage', props),
 }));
 
+// --- Markdown / code highlighting ---------------------------------------
+jest.mock('react-native-marked', () => ({
+  // Render the raw value so assertions on message text still work.
+  useMarkdown: (value) => [
+    require('react').createElement(require('react-native').Text, { key: 'md' }, value),
+  ],
+  Renderer: class {},
+}));
+
+jest.mock('react-native-code-highlighter', () => ({
+  __esModule: true,
+  default: ({ children }) =>
+    require('react').createElement(require('react-native').Text, null, children),
+}));
+
+jest.mock('expo-clipboard', () => ({ setStringAsync: jest.fn(async () => true) }));
+
 // --- Native pickers / services ------------------------------------------
 jest.mock('expo-image-picker', () => ({
   requestCameraPermissionsAsync: jest.fn(async () => ({ granted: true })),

@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Markdown } from './markdown';
 import { ThemedText } from './themed-text';
 
 /** A single chat message bubble; renders text and image parts. */
@@ -43,12 +44,14 @@ export function ChatBubble({ message }: { message: UIMessage }) {
           ) : null,
         )}
         {text.length > 0 ? (
-          <ThemedText
-            type="default"
-            style={{ color: isUser ? theme.bubbleUserText : theme.bubbleAssistantText }}
-          >
-            {text}
-          </ThemedText>
+          isUser ? (
+            <ThemedText type="default" style={{ color: theme.bubbleUserText }}>
+              {text}
+            </ThemedText>
+          ) : (
+            // Assistant responses are rendered as markdown with highlighted code.
+            <Markdown content={text} />
+          )
         ) : null}
       </View>
     </View>

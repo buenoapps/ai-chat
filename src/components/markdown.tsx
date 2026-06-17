@@ -1,0 +1,124 @@
+import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
+import { useMemo, useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import CodeHighlighter from 'react-native-code-highlighter';
+import { Renderer, useMarkdown, type RendererInterface } from 'react-native-marked';
+import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
+import { Fonts, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/use-theme';
+import { ThemedText } from './themed-text';
+
+/** Stable, content-derived key so a code block isn't remounted on every token. */
+function hashKey(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+
+/** A fenced code block: themed panel, language label, copy button, syntax highlighting. */
+export function CodeBlock({ code, language }: { code: string; language?: string }) {
+  const theme = useTheme();
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const [copied, setCopied] = useState(false);
+  const value = code.replace(/\n$/, '');
+
+  async function copy() {
+    await Clipboard.setStringAsync(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <View style={[styles.codeContainer, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
+      <View style={[styles.codeHeader, { borderBottomColor: theme.border }]}>
+        <ThemedText type="small" themeColor="textSecondary">
+          {language || 'code'}
+        </ThemedText>
+        <Pressable onPress={copy} hitSlop={8} accessibilityLabel="Copy code" style={styles.copyBtn}>
+          <Ionicons
+            name={copied ? 'checkmark' : 'copy-outline'}
+            size={14}
+            color={theme.textSecondary}
+          />
+          <ThemedText type="small" themeColor="textSecondary">
+            {copied ? 'Copied' : 'Copy'}
+          </ThemedText>
+        </Pressable>
+      </View>
+      <CodeHighlighter
+        hljsStyle={scheme === 'dark' ? atomOneDark : atomOneLight}
+        textStyle={styles.codeText}
+        language={language}
+        scrollViewProps={{ contentContainerStyle: styles.codeScroll }}
+      >
+        {value}
+      </CodeHighlighter>
+    </View>
+  );
+}
+
+/** react-native-marked renderer that swaps fenced code blocks for {@link CodeBlock}. */
+class MarkdownRenderer extends Renderer implements RendererInterface {
+  code(text: string, language?: string): ReactNode {
+    return <CodeBlock key={`code-${hashKey(text)}`} code={text} language={language} />;
+  }
+}
+
+/** Renders assistant message text as markdown with highlighted code blocks. */
+export function Markdown({ content }: { content: string }) {
+  const theme = useTheme();
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const renderer = useMemo(() => new MarkdownRenderer(), []);
+
+  const elements = useMarkdown(content, {
+    colorScheme: scheme,
+    renderer,
+    theme: {
+      colors: { text: theme.text, link: theme.tint, border: theme.border, code: theme.text },
+    },
+    styles: {
+      text: { color: theme.text, fontSize: 16, lineHeight: 24 },
+      paragraph: { marginVertical: Spacing.one, paddingTop: 0 },
+      strong: { fontWeight: '700' },
+      em: { fontStyle: 'italic' },
+      link: { color: theme.tint },
+      h1: { color: theme.text, fontSize: 24, fontWeight: '700' },
+      h2: { color: theme.text, fontSize: 20, fontWeight: '700' },
+      h3: { color: theme.text, fontSize: 18, fontWeight: '600' },
+      codespan: {
+        fontFamily: Fonts.mono,
+        fontSize: 14,
+        color: theme.text,
+        backgroundColor: theme.backgroundElement,
+      },
+      blockquote: { borderLeftColor: theme.border, opacity: 0.85 },
+      li: { color: theme.text, fontSize: 16, lineHeight: 24 },
+    },
+  });
+
+  return <View style={styles.container}>{elements}</View>;
+}
+
+const styles = StyleSheet.create({
+  container: { width: '100%' },
+  codeContainer: {
+    borderRadius: Spacing.two,
+    borderWidth: StyleSheet.hairlineWidth,
+    overflow: 'hidden',
+    marginVertical: Spacing.one,
+  },
+  codeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one + 2,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  copyBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  codeScroll: { padding: Spacing.three },
+  codeText: { fontFamily: Fonts.mono, fontSize: 13 },
+});
