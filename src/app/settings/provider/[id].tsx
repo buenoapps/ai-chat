@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useLayoutEffect, useState } from 'react';
 import {
@@ -17,6 +18,17 @@ import { useTheme } from '@/hooks/use-theme';
 import { MODELS, PROVIDER_LABELS, PROVIDER_TYPES, defaultModelFor } from '@/lib/ai/models';
 import type { ProviderType } from '@/lib/types';
 
+type HeaderRow = { key: string; value: string };
+
+function rowsToHeaders(rows: HeaderRow[]): Record<string, string> | undefined {
+  const headers: Record<string, string> = {};
+  for (const { key, value } of rows) {
+    const k = key.trim();
+    if (k) headers[k] = value;
+  }
+  return Object.keys(headers).length > 0 ? headers : undefined;
+}
+
 export default function ProviderFormScreen() {
   const theme = useTheme();
   const router = useRouter();
@@ -31,7 +43,20 @@ export default function ProviderFormScreen() {
   const [type, setType] = useState<ProviderType>(existing?.type ?? 'openai');
   const [model, setModel] = useState(existing?.model ?? defaultModelFor('openai'));
   const [baseUrl, setBaseUrl] = useState(existing?.baseUrl ?? '');
+  const [headerRows, setHeaderRows] = useState<HeaderRow[]>(() =>
+    Object.entries(existing?.headers ?? {}).map(([key, value]) => ({ key, value })),
+  );
   const [apiKey, setApiKey] = useState('');
+
+  function addHeader() {
+    setHeaderRows((rows) => [...rows, { key: '', value: '' }]);
+  }
+  function removeHeader(index: number) {
+    setHeaderRows((rows) => rows.filter((_, i) => i !== index));
+  }
+  function updateHeader(index: number, field: keyof HeaderRow, value: string) {
+    setHeaderRows((rows) => rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
+  }
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: isNew ? 'Add Provider' : 'Edit Provider' });
@@ -51,7 +76,13 @@ export default function ProviderFormScreen() {
       Alert.alert('API key required', 'Please enter the API key for this provider.');
       return;
     }
-    const input = { name: name.trim(), type, model, baseUrl: baseUrl.trim() || undefined };
+    const input = {
+      name: name.trim(),
+      type,
+      model,
+      baseUrl: baseUrl.trim() || undefined,
+      headers: rowsToHeaders(headerRows),
+    };
     if (isNew) {
       await addProvider(input, apiKey.trim());
     } else if (existing) {
@@ -179,6 +210,54 @@ export default function ProviderFormScreen() {
           Override the endpoint for a proxy or self-hosted / compatible gateway.
         </ThemedText>
 
+        <ThemedText type="smallBold" style={styles.label}>
+          HTTP HEADERS (OPTIONAL)
+        </ThemedText>
+        {headerRows.map((row, i) => (
+          <View key={i} style={styles.headerRow}>
+            <TextInput
+              style={[
+                styles.input,
+                styles.headerField,
+                { color: theme.text, backgroundColor: theme.backgroundElement },
+              ]}
+              value={row.key}
+              onChangeText={(t) => updateHeader(i, 'key', t)}
+              placeholder="Header"
+              placeholderTextColor={theme.textSecondary}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TextInput
+              style={[
+                styles.input,
+                styles.headerField,
+                { color: theme.text, backgroundColor: theme.backgroundElement },
+              ]}
+              value={row.value}
+              onChangeText={(t) => updateHeader(i, 'value', t)}
+              placeholder="Value"
+              placeholderTextColor={theme.textSecondary}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Pressable
+              onPress={() => removeHeader(i)}
+              accessibilityLabel="Remove header"
+              hitSlop={8}
+              style={styles.headerRemove}
+            >
+              <Ionicons name="close-circle" size={24} color={theme.textSecondary} />
+            </Pressable>
+          </View>
+        ))}
+        <Pressable onPress={addHeader} style={styles.addHeaderBtn}>
+          <Ionicons name="add-circle-outline" size={20} color={theme.tint} />
+          <ThemedText type="small" style={{ color: theme.tint, fontWeight: '600' }}>
+            Add header
+          </ThemedText>
+        </Pressable>
+
         <Pressable
           onPress={save}
           style={({ pressed }) => [styles.saveBtn, { backgroundColor: theme.tint, opacity: pressed ? 0.85 : 1 }]}
@@ -209,6 +288,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
     fontSize: 16,
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  headerField: { flex: 1 },
+  headerRemove: { padding: Spacing.one },
+  addHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingVertical: Spacing.two,
+    alignSelf: 'flex-start',
   },
   segment: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   segmentItem: {

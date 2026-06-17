@@ -30,6 +30,8 @@ export type Provider = {
   model: string;
   /** Optional custom API base URL; falls back to the provider's default. */
   baseUrl?: string;
+  /** Optional extra HTTP headers sent on every request to this provider. */
+  headers?: Record<string, string>;
   createdAt: number;
 };
 

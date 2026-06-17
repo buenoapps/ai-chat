@@ -31,8 +31,9 @@ Targets iOS and Android.
   `@ai-sdk/*` `createX({ apiKey, fetch, baseURL })` factory (a `FACTORIES` record
   checked for completeness via `satisfies`), using `expo/fetch` for native
   streaming. Using a provider instance (not a plain model-id string) means calls
-  go **directly to the provider, not the Vercel AI Gateway**; an optional
-  per-provider `baseUrl` overrides the default endpoint. To add a provider:
+  go **directly to the provider, not the Vercel AI Gateway**; optional
+  per-provider `baseUrl` and `headers` override the default endpoint and add
+  request headers. To add a provider:
   install its package, add a `ProviderType` (`src/lib/types.ts`), a `FACTORIES`
   entry, and a `MODELS`/`PROVIDER_LABELS` entry (`src/lib/ai/models.ts`).
   `convertToModelMessages` is **async** in v6 — `await` it.

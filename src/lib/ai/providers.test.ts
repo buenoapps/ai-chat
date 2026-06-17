@@ -81,6 +81,27 @@ describe('resolveModel', () => {
       apiKey: 'sk',
       fetch: expoFetch,
       baseURL: undefined,
+      headers: undefined,
+    });
+  });
+
+  it('forwards non-empty custom headers', () => {
+    resolveModel('openai', 'gpt-4o', 'sk', undefined, { 'x-org': 'acme' });
+    expect(createByType.openai!).toHaveBeenCalledWith({
+      apiKey: 'sk',
+      fetch: expoFetch,
+      baseURL: undefined,
+      headers: { 'x-org': 'acme' },
+    });
+  });
+
+  it('treats an empty headers object as none (undefined)', () => {
+    resolveModel('openai', 'gpt-4o', 'sk', undefined, {});
+    expect(createByType.openai!).toHaveBeenCalledWith({
+      apiKey: 'sk',
+      fetch: expoFetch,
+      baseURL: undefined,
+      headers: undefined,
     });
   });
 

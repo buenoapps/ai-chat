@@ -23,6 +23,7 @@ export type ProviderInput = {
   type: ProviderType;
   model: string;
   baseUrl?: string;
+  headers?: Record<string, string>;
 };
 
 type ProvidersContextValue = {

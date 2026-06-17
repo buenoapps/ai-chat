@@ -46,6 +46,7 @@ type ModelFactory = (opts: {
   apiKey: string;
   fetch: typeof globalThis.fetch;
   baseURL?: string;
+  headers?: Record<string, string>;
 }) => (modelId: string) => LanguageModel;
 
 /**
@@ -53,14 +54,21 @@ type ModelFactory = (opts: {
  * API key. The provider client is created on demand so keys never need to be
  * held in module state. An optional `baseUrl` overrides the provider's default
  * endpoint (for proxies, self-hosted/compatible gateways, or regional hosts);
- * when omitted the provider's own default base URL is used.
+ * optional `headers` are sent on every request (org routing, beta flags, proxy
+ * auth, …). When omitted, the provider's own defaults are used.
  */
 export function resolveModel(
   type: ProviderType,
   modelId: string,
   apiKey: string,
   baseUrl?: string,
+  headers?: Record<string, string>,
 ): LanguageModel {
   const create = FACTORIES[type] as ModelFactory;
-  return create({ apiKey, fetch: streamingFetch, baseURL: baseUrl || undefined })(modelId);
+  return create({
+    apiKey,
+    fetch: streamingFetch,
+    baseURL: baseUrl || undefined,
+    headers: headers && Object.keys(headers).length > 0 ? headers : undefined,
+  })(modelId);
 }

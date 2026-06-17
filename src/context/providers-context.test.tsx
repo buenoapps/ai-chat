@@ -20,7 +20,13 @@ describe('ProvidersProvider', () => {
     let id = '';
     await act(async () => {
       const p = await result.current.addProvider(
-        { name: 'Work', type: 'openai', model: 'gpt-4o', baseUrl: 'https://proxy.example/v1' },
+        {
+          name: 'Work',
+          type: 'openai',
+          model: 'gpt-4o',
+          baseUrl: 'https://proxy.example/v1',
+          headers: { 'x-org': 'acme' },
+        },
         'sk-123',
       );
       id = p.id;
@@ -28,6 +34,7 @@ describe('ProvidersProvider', () => {
 
     expect(result.current.providers).toHaveLength(1);
     expect(result.current.providers[0].baseUrl).toBe('https://proxy.example/v1');
+    expect(result.current.providers[0].headers).toEqual({ 'x-org': 'acme' });
     expect(result.current.getKey(id)).toBe('sk-123');
     expect(await getApiKey(id)).toBe('sk-123');
   });
