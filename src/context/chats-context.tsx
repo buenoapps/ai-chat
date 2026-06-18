@@ -20,6 +20,7 @@ type ChatsContextValue = {
   createChat: (providerId?: string) => Chat;
   updateChat: (id: string, patch: Partial<Omit<Chat, 'id'>>) => void;
   setMessages: (id: string, messages: UIMessage[]) => void;
+  renameChat: (id: string, title: string) => void;
   removeChat: (id: string) => void;
 };
 
@@ -108,9 +109,17 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     setChats((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
+  // Manual rename: sets a custom title without reordering the chat. Because the
+  // title is no longer "New chat", setMessages won't auto-derive over it.
+  const renameChat = useCallback((id: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title: trimmed } : c)));
+  }, []);
+
   const value = useMemo(
-    () => ({ chats, loading, getChat, createChat, updateChat, setMessages, removeChat }),
-    [chats, loading, getChat, createChat, updateChat, setMessages, removeChat],
+    () => ({ chats, loading, getChat, createChat, updateChat, setMessages, renameChat, removeChat }),
+    [chats, loading, getChat, createChat, updateChat, setMessages, renameChat, removeChat],
   );
 
   return <ChatsContext.Provider value={value}>{children}</ChatsContext.Provider>;

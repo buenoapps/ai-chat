@@ -109,6 +109,52 @@ describe('ChatsProvider', () => {
     expect(result.current.getChat(id)!.messages).toHaveLength(2);
   });
 
+  it('renames a chat without reordering it, and the title sticks', async () => {
+    const { result } = await renderHook(() => useChats(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let id = '';
+    await act(async () => {
+      id = result.current.createChat().id;
+    });
+    await act(async () => {
+      result.current.setMessages(id, [userMessage('hello')]);
+    });
+    const before = result.current.getChat(id)!.updatedAt;
+
+    await act(async () => {
+      result.current.renameChat(id, '  My custom title  ');
+    });
+    expect(result.current.getChat(id)!.title).toBe('My custom title');
+    expect(result.current.getChat(id)!.updatedAt).toBe(before); // no reorder
+
+    // A later message must not overwrite the manual title.
+    await act(async () => {
+      result.current.setMessages(id, [
+        userMessage('hello'),
+        { id: 'm2', role: 'assistant', parts: [{ type: 'text', text: 'hi' }] },
+      ]);
+    });
+    expect(result.current.getChat(id)!.title).toBe('My custom title');
+  });
+
+  it('ignores an empty rename', async () => {
+    const { result } = await renderHook(() => useChats(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let id = '';
+    await act(async () => {
+      id = result.current.createChat().id;
+    });
+    await act(async () => {
+      result.current.setMessages(id, [userMessage('keep me')]);
+    });
+    await act(async () => {
+      result.current.renameChat(id, '   ');
+    });
+    expect(result.current.getChat(id)!.title).toBe('keep me');
+  });
+
   it('removes a chat', async () => {
     const { result } = await renderHook(() => useChats(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
