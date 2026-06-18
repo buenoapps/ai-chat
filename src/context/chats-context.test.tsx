@@ -66,6 +66,49 @@ describe('ChatsProvider', () => {
     expect(result.current.getChat(id)?.title).toBe('What is the weather?');
   });
 
+  it('does not bump updatedAt when reopened with the same messages', async () => {
+    const { result } = await renderHook(() => useChats(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let id = '';
+    await act(async () => {
+      id = result.current.createChat().id;
+    });
+    await act(async () => {
+      result.current.setMessages(id, [userMessage('hello')]);
+    });
+    const after = result.current.getChat(id)?.updatedAt;
+
+    // Reopening persists the same messages (a fresh array, identical content).
+    await act(async () => {
+      result.current.setMessages(id, [userMessage('hello')]);
+    });
+    expect(result.current.getChat(id)?.updatedAt).toBe(after);
+  });
+
+  it('bumps updatedAt when a new message arrives', async () => {
+    const { result } = await renderHook(() => useChats(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let id = '';
+    await act(async () => {
+      id = result.current.createChat().id;
+    });
+    await act(async () => {
+      result.current.setMessages(id, [userMessage('hello')]);
+    });
+    const before = result.current.getChat(id)!.updatedAt;
+
+    await act(async () => {
+      result.current.setMessages(id, [
+        userMessage('hello'),
+        { id: 'm2', role: 'assistant', parts: [{ type: 'text', text: 'hi back' }] },
+      ]);
+    });
+    expect(result.current.getChat(id)!.updatedAt).toBeGreaterThanOrEqual(before);
+    expect(result.current.getChat(id)!.messages).toHaveLength(2);
+  });
+
   it('removes a chat', async () => {
     const { result } = await renderHook(() => useChats(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));

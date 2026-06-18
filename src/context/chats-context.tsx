@@ -36,6 +36,21 @@ export function deriveTitle(messages: UIMessage[]): string {
   return text.length > 48 ? `${text.slice(0, 48)}…` : text;
 }
 
+/**
+ * A cheap signature of the conversation that changes only on real message
+ * activity (a message added, or the last message's text growing while it
+ * streams) — not when a chat is merely reopened with its existing messages.
+ */
+export function messagesSignature(messages: UIMessage[]): string {
+  const last = messages[messages.length - 1];
+  if (!last) return '0';
+  const lastLen = last.parts.reduce(
+    (n, p) => n + (p.type === 'text' || p.type === 'reasoning' ? p.text.length : 1),
+    0,
+  );
+  return `${messages.length}:${last.id}:${lastLen}`;
+}
+
 export function ChatsProvider({ children }: { children: ReactNode }) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +94,10 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
     setChats((prev) =>
       prev.map((c) => {
         if (c.id !== id) return c;
+        // Only treat this as activity (re-title + bump order) when the messages
+        // actually changed. Reopening a chat persists identical messages, which
+        // must not move it to the top of the history.
+        if (messagesSignature(c.messages) === messagesSignature(messages)) return c;
         const title = c.title === 'New chat' ? deriveTitle(messages) : c.title;
         return { ...c, messages, title, updatedAt: Date.now() };
       }),
